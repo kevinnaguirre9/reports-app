@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<doctrine-mongo-mapping xmlns="http://doctrine-project.org/schemas/odm/doctrine-mongo-mapping"
+                        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+                        xsi:schemaLocation="http://doctrine-project.org/schemas/odm/doctrine-mongo-mapping
+                  http://doctrine-project.org/schemas/odm/doctrine-mongo-mapping.xsd">
+    <document name="ReportsApp\Architecture\DataSource\Domain\DataSource" collection="data_sources">
+        <id strategy="NONE" type="data_source_id" />
+        <field field-name="name" name="name" type="string" />
+        <field field-name="type" name="type" type="data_source_type" />
+
+        <reference-one
+            field-name="AcademicPeriod"
+            field="academic_period"
+            target-document="ReportsApp\Architecture\AcademicPeriod\Domain\AcademicPeriod"
+            store-as="id"
+        >
+            <cascade>
+                <persist/>
+            </cascade>
+        </reference-one>
+
+        <field field-name="createdAt" name="created_at" type="string" />
+        <field field-name="updatedAt" name="updated_at" type="string" />
+        <field field-name="deletedAt" name="deleted_at" type="string" />
+    </document>
+</doctrine-mongo-mapping>

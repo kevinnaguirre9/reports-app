@@ -1,0 +1,58 @@
+version: '3.5'
+services:
+  app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    working_dir: /app
+    container_name: reports-app
+    restart: unless-stopped
+    volumes:
+      - ./:/app
+      - ./etc/docker/nginx/default.conf:/etc/nginx/http.d/default.conf
+      - ./etc/docker/php/www.conf:/usr/local/etc/php-fpm.d/www.conf
+      - ./etc/docker/supervisord.conf:/etc/supervisord.conf
+    ports:
+      - "${APP_PORT:-8080}:8080"
+    networks:
+      - reports-app-network
+
+  mongo:
+    image: "mongo:5.0"
+    container_name: mongodb-reports-app
+    command: mongod --auth
+    restart: unless-stopped
+    logging:
+      driver: none
+    ports:
+      - "${DB_PORT_INTERNAL_LOCALHOST_MONGODB:-27017}:${DB_PORT_MONGODB:-27017}"
+    environment:
+      - MONGO_INITDB_ROOT_USERNAME=${DB_USERNAME_MONGODB}
+      - MONGO_INITDB_ROOT_PASSWORD=${DB_PASSWORD_MONGODB}
+    volumes:
+      - /home/$USER/reports-app/mongo-data:/data/db
+      - /home/$USER/reports-app/mongo-log:/var/log/mongodb/
+    networks:
+      - reports-app-network
+
+  rabbitmq:
+    image: rabbitmq:3.7-management
+    container_name: rabbitmq-reports-app
+    tty: true
+    ports:
+      - "5672:5672"
+      - "15672:15672"
+    environment:
+      RABBITMQ_DEFAULT_USER: "guest"
+      RABBITMQ_DEFAULT_PASS: "guest"
+      RABBITMQ_DEFAULT_VHOST: "/"
+    networks:
+      - reports-app-network
+
+networks:
+  reports-app-network:
+    external:
+      name: external-example
+
+
+#Create external network with <docker network create external-example> command
