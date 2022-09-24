@@ -27,9 +27,9 @@ final class MongoDbEventBus implements EventBus
     /**
      * @param DocumentManager $documentManager
      */
-    public function __construct(private DocumentManager $documentManager)
+    public function __construct(DocumentManager $documentManager)
     {
-        $this->MongoDbConnection = $this->documentManager
+        $this->MongoDbConnection = $documentManager
             ->getClient()
             ->selectDatabase(env('DB_DATABASE_MONGO'));
     }

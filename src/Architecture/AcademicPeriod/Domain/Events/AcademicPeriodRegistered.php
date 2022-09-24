@@ -2,8 +2,6 @@
 
 namespace ReportsApp\Architecture\AcademicPeriod\Domain\Events;
 
-use ReportsApp\Architecture\AcademicPeriod\Domain\AcademicPeriod;
-use ReportsApp\Shared\Domain\Bus\Event\DomainEvent;
 
 /**
  * Class AcademicPeriodRegistered
