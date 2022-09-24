@@ -42,6 +42,6 @@ final class AcademicPeriodCreator
 
         $this->repository->save($AcademicPeriod);
 
-        $this->eventBus->publish(new AcademicPeriodRegistered($AcademicPeriod));
+        $this->eventBus->dispatch(...$AcademicPeriod->pullDomainEvents());
     }
 }

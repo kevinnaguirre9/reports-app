@@ -10,26 +10,11 @@ use ReportsApp\Shared\Domain\Bus\Event\DomainEvent;
  *
  * @package ReportsApp\Architecture\AcademicPeriod\Domain\Events
  */
-final class AcademicPeriodRegistered extends DomainEvent
+final class AcademicPeriodRegistered extends AcademicPeriodEvent
 {
     /**
      * @var string
      */
-    public const NAME = 'tech-org.academic-period.1.event.academic-period.registered';
+    public const NAME = 'academic_period_registered';
 
-    /**
-     * @param AcademicPeriod $AcademicPeriod
-     */
-    public function __construct(private AcademicPeriod $AcademicPeriod)
-    {
-        parent::__construct();
-    }
-
-    /**
-     * @return array
-     */
-    public function toArray() : array
-    {
-        return $this->AcademicPeriod->toArray();
-    }
 }
