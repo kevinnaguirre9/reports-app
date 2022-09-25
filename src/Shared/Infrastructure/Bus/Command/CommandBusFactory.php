@@ -17,7 +17,6 @@ use ReportsApp\Shared\Infrastructure\Bus\Command\Locator\NamespacedHandlerLocato
  */
 final class CommandBusFactory
 {
-
     /**
      * @param ContainerInterface $container
      * @return CommandBus

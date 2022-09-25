@@ -2,7 +2,7 @@
 
 namespace ReportsApp\Shared\Domain;
 
-use ReportsApp\Shared\Domain\BaseEntity;
+use ReportsApp\Shared\Domain\Bus\Event\DomainEvent;
 
 /**
  * Class AggregateRoot
@@ -17,26 +17,23 @@ abstract class AggregateRoot extends BaseEntity
     private array $domainEvents = [];
 
     /**
-     *
-     */
-    public function __construct()
-    {
-        parent::__construct();
-    }
-
-    /**
-     * @return array
+     * @return DomainEvent[]
      */
     final public function pullDomainEvents(): array
     {
         $domainEvents       = $this->domainEvents;
+
         $this->domainEvents = [];
 
         return $domainEvents;
     }
 
-//    final protected function record(DomainEvent $domainEvent): void
-//    {
-//        $this->domainEvents[] = $domainEvent;
-//    }
+    /**
+     * @param DomainEvent $domainEvent
+     * @return void
+     */
+    final protected function record(DomainEvent $domainEvent): void
+    {
+        $this->domainEvents[] = $domainEvent;
+    }
 }

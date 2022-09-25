@@ -10,8 +10,8 @@ namespace ReportsApp\Shared\Domain\Bus\Event;
 interface EventBus
 {
     /**
-     * @param DomainEvent $event
+     * @param Event ...$events
      * @return void
      */
-    public function publish(DomainEvent $event): void;
+    public function dispatch(Event ...$events): void;
 }

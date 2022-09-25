@@ -2,6 +2,7 @@
 
 namespace ReportsApp\Architecture\AcademicPeriod\Domain;
 
+use ReportsApp\Architecture\AcademicPeriod\Domain\Events\AcademicPeriodRegistered;
 use ReportsApp\Architecture\AcademicPeriod\Domain\ValueObjects\AcademicPeriodId;
 use ReportsApp\Shared\Domain\AggregateRoot;
 use ReportsApp\Shared\Domain\Traits\SoftDeletes;
@@ -49,7 +50,11 @@ class AcademicPeriod extends AggregateRoot
         ?string $description = null,
     ): AcademicPeriod
     {
-        return new self($id, $name, $startDate, $endDate, $description);
+        $AcademicPeriod = new self($id, $name, $startDate, $endDate, $description);
+
+        $AcademicPeriod->record(new AcademicPeriodRegistered($AcademicPeriod));
+
+        return $AcademicPeriod;
     }
 
     /**

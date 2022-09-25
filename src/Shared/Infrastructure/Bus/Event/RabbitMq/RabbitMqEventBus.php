@@ -2,11 +2,12 @@
 
 namespace ReportsApp\Shared\Infrastructure\Bus\Event\RabbitMq;
 
-use ReportsApp\Shared\Domain\Bus\Event\DomainEvent;
+use Enqueue\Client\Message;
+use Enqueue\SimpleClient\SimpleClient;
+use Psr\Log\LoggerInterface;
+use ReportsApp\Shared\Domain\Bus\Event\Event;
 use ReportsApp\Shared\Domain\Bus\Event\EventBus;
-use PhpAmqpLib\Channel\AMQPChannel;
-use PhpAmqpLib\Connection\AMQPStreamConnection;
-use PhpAmqpLib\Message\AMQPMessage;
+use ReportsApp\Shared\Infrastructure\Bus\Event\MongoDb\MongoDbEventBus;
 
 /**
  * Class RabbitMqEventBus
@@ -16,58 +17,60 @@ use PhpAmqpLib\Message\AMQPMessage;
 final class RabbitMqEventBus implements EventBus
 {
     /**
-     * @var AMQPChannel|mixed
-     */
-    private AMQPChannel $channel;
-
-    /**
-     * @param AMQPStreamConnection $connection
-     * @param string $exchange
+     * @param SimpleClient $client
+     * @param MongoDbEventBus $failOverPublisher
+     * @param LoggerInterface $logger
      */
     public function __construct(
-        private AMQPStreamConnection $connection,
-        private string $exchange,
+        private SimpleClient $client,
+        private MongoDbEventBus $failOverPublisher,
+        private LoggerInterface $logger,
     )
     {
-        $this->channel = $this->connection->channel();
-
-        $this->declareExchange();
     }
 
     /**
-     * @param DomainEvent $event
+     * @param Event ...$events
      * @return void
      */
-    public function publish(DomainEvent $event): void
+    public function dispatch(Event ...$events): void
     {
-        $routingKey = $event->getType();
+        foreach ($events as $event) {
 
-        $messageBody = new AMQPMessage(
-            json_encode($event->jsonSerialize()),
-            [
-                'message_id'       => (string) $event->getEventId(),
-                'content_type'     => 'application/json',
-                'content_encoding' => 'utf-8',
-            ]
-        );
+            try {
 
-        $this->channel->basic_publish(
-            $messageBody,
-            $this->exchange,
-            $routingKey,
-        );
+                $this->publishEvent($event);
+
+            } catch (\Exception $exception) {
+
+                $this->logger->error($exception->getMessage());
+
+                $this->failOverPublisher->dispatch($event);
+            }
+        }
     }
 
     /**
+     * Publishes an event to the message broker
+     *
+     * @param Event $event
      * @return void
      */
-    private function declareExchange(): void
+    private function publishEvent(Event $event)
     {
-        $this->channel->exchange_declare(
-            $this->exchange,
-            config('enqueue.connections.rabbitmq.exchange.type'),
-            durable: config('enqueue.connections.rabbitmq.exchange.durable'),
-            auto_delete: config('enqueue.connections.rabbitmq.exchange.auto_delete'),
-        );
+        $message = new Message($event);
+
+        $message->setHeader('message_id ', (string) $event->getEventId());
+
+        $message->setHeader('type', env('APP_NAME') . ".{$event->getType()}");
+
+        $message->setHeader('app_id', env('APP_NAME'));
+
+        $topic = $this->client
+            ->getDriver()
+            ->getConfig()
+            ->getRouterTopic();
+
+        $this->client->sendEvent($topic, $message);
     }
 }

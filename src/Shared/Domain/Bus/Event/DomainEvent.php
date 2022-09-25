@@ -64,10 +64,9 @@ abstract class DomainEvent implements Event
     public function jsonSerialize() : array
     {
         return [
-            'event_id'=> (string) $this->eventId,
-            'type'=> $this->getType(),
-            'fired_at'=> $this->firedAt,
-            'body'=> $this->toArray()
-        ];
+            'event_id'  => (string) $this->getEventId(),
+            'type'      => $this->getType(),
+            'fired_at'  => $this->getFiredAt(),
+        ] + $this->toArray();
     }
 }
