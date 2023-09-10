@@ -1,6 +1,6 @@
 # Reports App
 
-💫 PHP example application using  Domain-Driven Design and Command Query Responsibility Segregation principles
+💫 PHP sample microservice using CQRS and Event Driven Architecture.
 
 ## Getting started
 
